@@ -37,7 +37,7 @@ struct bcblk {
 struct bsblk {
     word	typ;					// type word
     word	bsalc;					// allocated size of buffer
-    char	bschr[1];				// characters of string
+    char	bschr[];				// characters of string
 };
 
 
@@ -58,7 +58,7 @@ struct cdblk {
         char 		 *cdnof;	// no failure exit (-NOFAIL mode)
         word		  cddir;		// failure exit is complex or direct
     }			cdfal;			// Failure exit
-    word			cdcod[1];		// executable pseudo-code
+    word			cdcod[];		// executable pseudo-code
 };
 
 
@@ -92,7 +92,7 @@ struct	efblk {
     void *efcod;			//  pointer to XNBLK
     struct vrblk *efvar;	//  pointer to VRBLK
     word	efrsl;				//  result type
-    word	eftar[1];			//  argument types
+    word	eftar[];			//  argument types
 };
 
 /*
@@ -133,7 +133,7 @@ struct	rcblk {
 struct	scblk {
     word	typ;		//  type word - b$scl
     word	len;		//  string length
-    char	str[1];		//  string characters
+    char	str[];		//  string characters
 };
 
 
@@ -152,7 +152,7 @@ struct vrblk {
     union block	 *vrfnc;		// function block if name is function
     struct vrblk *vrnxt;		// next vrblk on hash chain
     word			vrlen;			// length of name
-    char			vrchs[1];		// characters of name
+    char			vrchs[];		// characters of name
 };
 
 
