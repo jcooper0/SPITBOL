@@ -186,6 +186,8 @@ reg_fl:	db	0		; condition code register for numeric operations
 
 	align 8
 fl_flags:	d_word	0	; float flags
+	global	reg_flerr
+reg_flerr:  d_word 	0 	; Floatint point error
 
 	align	8
 ;  constants
@@ -798,17 +800,8 @@ setovr: mov	al,1		; set overflow indicator
 	pop	rsi
 	pop	rdi
 
-	mov	ax, word [reg_ra+6]	; get top 2 bytes
-	and	ax, 0x7ff0			; check for infinity or nan
-	add	ax, 0x10			; set/clear overflow accordingly
-	seto	byte [reg_fl]
-	jo	%%done
-
-	xor	rax, rax
-	fstsw	ax				; Get FPU status word
-	stmxcsr	[fl_flags]		; Get SSE status
-	or	rax, m_word [fl_flags]	; Combine
-	and	al, 0x1f			; INVALID | DENORM | DIVBYZERO | OVERFLOW | UNDERFLOW
+	mov 	rax, m_word [reg_flerr]	; Combine
+	and	al, 0x1f			; INVALID | DIVBYZERO | OVERFLOW | UNDERFLOW
 	mov	byte [reg_fl], al
 %%done: ret
 %endmacro
@@ -855,7 +848,11 @@ setovr: mov	al,1		; set overflow indicator
 	pop	rdx
 	pop	rsi
 	pop	rdi
-	ret
+	xor   rax,rax
+	mov	rax, [reg_flerr]		; 0x01       0x04        0x08       0x10
+	and	al, 0x1f			; INVALID | DIVBYZERO | OVERFLOW | UNDERFLOW
+	mov	byte [reg_fl], al
+%%done	ret
 %endmacro
 
 	math_op	atn_,f_atn

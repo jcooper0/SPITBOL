@@ -13,25 +13,30 @@ Copyright 2012-2017 David Shields
  */
 
 #include "port.h"
-
 #include <errno.h>
 
 #if FLOAT & !MATHHDWR
 
 #include <math.h>
+#include <fenv.h>
 
 #ifndef errno
 int errno;
 #endif
 
+#define FE_SBL_EXCEPT (FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW )
+
 extern double inf;	// infinity
+extern word reg_flerr;	/* Floating point error */
 
 /*
  * f_atn - arctangent
  */
 void f_atn()
 {
-	reg_ra = atan(reg_ra);
+    feclearexcept(FE_ALL_EXCEPT);
+    reg_ra = atan(reg_ra);
+    reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 }
 
 /*
@@ -39,10 +44,12 @@ void f_atn()
  */
 void f_chp()
 {
+    feclearexcept(FE_ALL_EXCEPT);
     if (reg_ra >= 0.0)
         reg_ra =  floor(reg_ra);
     else
         reg_ra =  ceil(reg_ra);
+    reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 }
 
 /*
@@ -50,7 +57,9 @@ void f_chp()
  */
 void f_cos()
 {
+    feclearexcept(FE_ALL_EXCEPT);
     reg_ra =  cos(reg_ra);
+    reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 }
 
 
@@ -60,10 +69,12 @@ void f_cos()
 void f_etx()
 {
     errno = 0;
+    feclearexcept(FE_ALL_EXCEPT);
     reg_ra = exp(reg_ra);
     if (errno) {
-	reg_ra = inf;
+        reg_ra = inf;
     }
+    reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 }
 
 /*
@@ -72,10 +83,13 @@ void f_etx()
 void f_lnf()
 {
     errno = 0;
+    feclearexcept(FE_ALL_EXCEPT);
+
     reg_ra = log(reg_ra);
     if (errno) {
-	reg_ra = inf;
+        reg_ra = inf;
     }
+    reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 }
 
 /*
@@ -83,7 +97,9 @@ void f_lnf()
  */
 void f_sin()
 {
+    feclearexcept(FE_ALL_EXCEPT);
     reg_ra = sin(reg_ra);
+    reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 }
 
 /*
@@ -91,7 +107,9 @@ void f_sin()
  */
 void f_sqr()
 {
+    feclearexcept(FE_ALL_EXCEPT);
     reg_ra = sqrt(reg_ra);
+    reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 }
 
 /*
@@ -100,8 +118,10 @@ void f_sqr()
 void f_tan()
 {
     double result;
+    feclearexcept(FE_ALL_EXCEPT);
     result = tan(reg_ra);
     errno = 0;
     reg_ra = errno ? inf : result;
+    reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 }
 #endif					// FLOAT & !MATHHDWR

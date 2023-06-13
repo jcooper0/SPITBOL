@@ -27,6 +27,9 @@ This file is part of Macro SPITBOL.
 
 #include "port.h"
 #include <math.h>
+#include <fenv.h>
+#define FE_SBL_EXCEPT (FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW )
+
 #if (FLOAT & !FLTHDWR) | EXTFUN
 
 
@@ -45,28 +48,35 @@ void f_str() {			// store real
 }
 
 void f_adr() {			// add real
+	feclearexcept(FE_ALL_EXCEPT);
 	reg_ra += *reg_rp;
+	reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 	return;
 }
 
 void f_sbr() {			// subtract real
+	feclearexcept(FE_ALL_EXCEPT);
 	reg_ra -= *reg_rp;
+	reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 	return;
 }
 
 void f_mlr() {			// multiply real
+	feclearexcept(FE_ALL_EXCEPT);
 	reg_ra *= *reg_rp;
+	reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 	return;
 }
 
 void f_dvr() {			// divide real
+	feclearexcept(FE_ALL_EXCEPT);
 	if (*reg_rp != 0.0) {
 		reg_ra /= *reg_rp;
-		reg_fl = 0;
+		reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 	}
 	else {
-		reg_fl = 1;
 		reg_ra = NAN;
+		reg_flerr = FE_DIVBYZERO;
 	}
 	return;
 }
