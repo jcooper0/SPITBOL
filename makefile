@@ -15,19 +15,19 @@ ELF=elf$(WS)
 
 DEST=/usr/local/bin
 
-ifeq	($(DEBUG),0)
-CFLAGS= -Dm64 -m64 -static 
+ifeq ($(DEBUG),0)
+CFLAGS= -Dm64 -m64 -static
 else
-CFLAGS= -Dm64 -g -m64 -static 
+CFLAGS= -Dm64 -g -m64 -static
 endif
 
-# Assembler info 
+# Assembler info
 # Assembler
 ASM=nasm
 ifeq	($(DEBUG),0)
 ASMFLAGS = -f $(ELF) -d m64
 else
-ASMFLAGS = -g -F stabs -f $(ELF) -d m64
+ASMFLAGS = -g -F dwarf -f $(ELF) -d m64
 endif
 
 # Tools for processing Minimal source file.
@@ -37,9 +37,9 @@ BASEBOL =   ./bin/sbl
 #LOBJS=  dlfcn.o load.o
 LOBJS=
 
-spitbol: 
+spitbol:
 #	rm sbl sbl.lex sbl.s sbl.err err.s
-	$(BASEBOL) lex.sbl 
+	$(BASEBOL) lex.sbl
 	$(BASEBOL) -x asm.sbl
 	$(BASEBOL) -x -1=sbl.err -2=err.asm err.sbl
 	$(ASM) $(ASMFLAGS) err.asm
@@ -51,7 +51,7 @@ spitbol:
 
 # (BROKEN) link spitbol with dynamic linking
 spitbol-dynamic: $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) $(LIBS) -osbl -lm 
+	$(CC) $(CFLAGS) $(OBJS) $(LIBS) -osbl -lm
 
 sbl.go:	sbl.lex go.sbl
 	$(BASEBOL) -x -u i32 go.sbl
@@ -69,13 +69,13 @@ bootsbl:
 	$(CC) $(CFLAGS) *.o -obootsbl -lm
 	rm -f *.o *.lst *.map *.err err.lex sbl.lex sbl.err sbl.asm err.asm
 
-# verify that the bootstrap files match 
+# verify that the bootstrap files match
 checkboot:
 	diff err.asm bootstrap/err.asm
 	diff sbl.asm bootstrap/sbl.asm
 	diff sbl.lex bootstrap/sbl.lex
 
-# Run sanity check first to make sure we have good output. 
+# Run sanity check first to make sure we have good output.
 makeboot: spitbol
 	cp err.asm bootstrap/err.asm
 	cp sbl.asm bootstrap/sbl.asm
