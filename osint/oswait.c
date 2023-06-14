@@ -23,19 +23,25 @@ Copyright 2012-2017 David Shields
 #include <signal.h>
 #include <sys/wait.h>
 
-void oswait( pid )
-int	pid;
+void oswait( int pid )
 {
     int	deadpid, status;
-    struct  chfcb   *chptr;
-    SigType (*hstat)(int),
-            (*istat)(int),
-            (*qstat)(int);
+    struct chfcb *chptr;
+#if defined(USE_SIGACTION)
+    struct sigaction ignore = {.sa_handler = SIG_IGN};
+    struct sigaction istat, qstat, hstat;
+    sigaction(SIGINT, &ignore, &istat);
+    sigaction(SIGQUIT, &ignore, &qstat);
+    sigaction(SIGHUP, &ignore, &hstat);
+#else
+    void (*hstat)(int),
+         (*istat)(int),
+         (*qstat)(int);
 
     istat	= signal( SIGINT, SIG_IGN );
     qstat	= signal( SIGQUIT ,SIG_IGN );
     hstat	= signal( SIGHUP, SIG_IGN );
-
+#endif
     while ( (deadpid = wait( &status )) != pid  &&  deadpid != -1 )
     {
         for ( chptr = GET_MIN_VALUE(r_fcb,struct chfcb *); chptr != 0;
@@ -48,8 +54,13 @@ int	pid;
             }
         }
     }
-
+#if defined(USE_SIGACTION)
+    sigaction(SIGINT, &istat, NULL);
+    sigaction(SIGQUIT, &qstat, NULL);
+    sigaction(SIGHUP, &hstat, NULL);
+#else
     signal( SIGINT,istat );
     signal( SIGQUIT,qstat );
     signal( SIGHUP,hstat );
+#endif
 }
