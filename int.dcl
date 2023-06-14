@@ -218,14 +218,14 @@ calltab:
 
 	%macro	ino_	1
 	mov	al,byte [reg_fl]
-	or	al,al
-	jno	%1
+	test	al,al
+	jz	%1
 	%endmacro
 
 	%macro	iov_	1
 	mov	al,byte [reg_fl]
-	or	al,al
-	jo	%1
+	test	al,al
+	jnz	%1
 	%endmacro
 
 	%macro	ldi_	1
@@ -289,14 +289,14 @@ calltab:
 
 	%macro	rov_	1
 	mov	al,byte [reg_fl]
-	or	al,al
-	jne	%1
+	test	al,al
+	jnz	%1
 	%endmacro
 
 	%macro	rno_	1
 	mov	al,byte [reg_fl]
-	or	al,al
-	je	%1
+	test	al,al
+	jz	%1
 	%endmacro
 
 

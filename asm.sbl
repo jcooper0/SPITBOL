@@ -1943,10 +1943,17 @@ g_sbi
 
 g_dvi
 
+   genop('mov','byte [reg_fl]', 0)
+   genop('mov',wc,getarg(i1))
+   genop('test',wc,wc)
+   genop('jz', (t1 = genlab()))
    genop('mov',w0,ia)
    genop('cdq')
    genop('idiv',getarg(i1))
    genop('mov',ia,w0)
+   genop('jmp', (t2 = genlab()))
+   genopl(t1 '  :', 'mov', 'byte [reg_fl]', 1)
+   genopl(t2 '  :')
                      :(opdone)
 
 *  *   4.6   RMI   _ops_
@@ -1954,10 +1961,17 @@ g_dvi
 *  Set integer accumulator to `mod(intacc,_ops_)`
 
 g_rmi
+   genop('mov','byte [reg_fl]', 0)
+   genop('mov',wc,getarg(i1))
+   genop('test',wc,wc)
+   genop('jz', (t1 = genlab()))
    genop('mov',w0,ia)
    genop('cdq')
    genop('idiv',getarg(i1))
    genop('mov',ia,wc)
+   genop('jmp', (t2 = genlab()))
+   genopl(t1 '  :', 'mov', 'byte [reg_fl]', 1)
+   genopl(t2 '  :')
                      :(opdone)
 *  *   4.7   STI   _ops_
 
