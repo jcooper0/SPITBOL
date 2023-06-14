@@ -1,0 +1,66 @@
+        define('chks(expr)')             :(defines.end)
+* Evaluate an expression and report it's result
+chks
+        result = eval(expr)             :f(chks.oops)
+        output = 'Check ' expr ' result=[' result ']' :(return)
+chks.oops
+        output = 'Check ' expr ' Failed: ' &errtext   :(return)
+chks.mismatch
+        output = 'Check ' expr ' Result=' result ' Expected=' val       :(return)
+
+trapexception
+        output = 'Exception caught ' &errtext            :(continue)
+defines.end
+
+        &errlimit = 1000
+        setexit(.trapexception)
+        PI = 3.141592653589793
+        E = 2.718281828459045
+
+        chks('1 / 0')
+
+        chks('sqrt(0.0)')
+        chks('sqrt(0.25)')
+        chks('sqrt(1)')
+        chks('sqrt(2.25)')
+        chks('sqrt("4")')
+        chks('sqrt(256.0)')
+
+        chks('ln(0.1)')
+        chks('ln(0.25)')
+        chks('ln(1.0)')
+        chks('ln(10)')
+        chks('ln("10")')
+        chks('ln(100)')
+        chks('ln(1000)')
+
+        chks('exp(-3)')
+        chks('exp(-1)')
+        chks('exp(0)')
+        chks('exp(1.0)')
+        chks('exp(2)')
+        chks('exp(3)')
+
+        chks('sin(-PI / 3)')
+        chks('sin(0)')
+        chks('sin("3.1415926535")')
+
+        chks('cos(-PI / 3)')
+        chks('cos(0)')
+        chks('cos("3.1415926535")')
+
+        chks('tan(-PI / 3)')
+        chks('tan(0)')
+        chks('tan("3.1415926535")')
+
+        chks('atan("-1000")')
+        chks('atan(-47)')
+        chks('atan(-1)')
+        chks('atan(-0.5)')
+        chks('atan("0")')
+        chks('atan(0.5)')
+        chks('atan(1)')
+        chks('atan(47)')
+        chks('atan(1000)')
+
+end
