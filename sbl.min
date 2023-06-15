@@ -24,7 +24,7 @@
 *      ---------------------------------------------------
 
 *      date of release  -  Feburary 2023
-*      version 4.0a is maintained by
+*      version 4 is maintained by
 *           Cheyenne Wills
 *           Jamestown, Co.
 *      contact via github repository: https://github.com/spitbol/x64
@@ -6032,7 +6032,7 @@ lstms  dac  b_scl            page
 
 headr  dac  b_scl
        dac  26
-       dtc  /macro spitbol version 4.0a/
+       dtc  /macro spitbol version 4.0b/
 
 headv  dac  b_scl            for exit() version no. check
        dac  5

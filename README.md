@@ -1,31 +1,51 @@
-# Unix SPITBOL V4.0a (Feburary 2023)
+# Unix SPITBOL V4.0b (June 2023)
 
 SPITBOL is an extremely high performance implementation of the SNOBOL4 language that brings raw power and speed
 to non-numeric computation.
 
-SPITBOL V4.0a is currently only available for 64-bit x86_64 processors running Unix.
+SPITBOL V4.0b is currently only available for 64-bit x86_64 processors running Unix.
 
 The latest version of SPITBOL V4.0 can be found at [github.com/spitbol/x64](http://github.com/spitbol/x64).
 
 For comments, suggestions, and bug reports please open an issue in the github repository.
 
-## Language Changes
+## Current News
 
-Version 4.0a contains minor bug fixes and clarifications
+* Version 4.ob contains several bug fixes and internal cleanup
 
-Version 4.0 differs from previous versions of SPITBOL as follows:
+    * The value of &ANCHOR has been restored back to 0 (unanchored)
+    * Fixed error handling when there is a problem within EVAL()
+    * Improved floating point error detection
+    * Fixed using a caret ('^') as an exponent operator (4 ^ 2)
+    * Improved detection of divide by zero
+    * Improved handling of signals
+        * SIGINT (Ctrl-C), SIGQUIT (Ctrl-/) and SIGHUP are now caught
+          as a user interruption and can be trapped/processed via SETEXIT()
+    * Fix build error on hardened system
+    * Ongoing internal cleanup within the code base
+        * Standardize on whitespace and coding style conventions
+        * Fix parsing MINimal statements
+        * Use modern C function declarations and arrays within structures
+        * Cleanup makefile
+        * Add additional test programs
 
-*   The initial value of &ANCHOR is one, not null as in prior versions.
+## Older News
 
-*   The initial value of &TRIM is one, not null as in prior versions.
+* Version 4.0a contains minor bug fixes and clarifications
 
-The manual has always suggested setting &ANCHOR and &TRIM to non-null values for more efficient searching.
+    Version 4.0 differs from previous versions of SPITBOL as follows:
 
-Prior versions also folded cases by default, so that variables differing only in case, such as
-'Var' and 'VAR' were treated as the same variable. Though this may have made sense when
-lower case terminals and printers were just coming into use, those days are long gone.
+    *   The initial value of &ANCHOR is one, not null as in prior versions.
 
-The compiler option '-F' will enable folded cases (&CASE set to one).
+    *   The initial value of &TRIM is one, not null as in prior versions.
+
+    The manual has always suggested setting &ANCHOR and &TRIM to non-null values for more efficient searching.
+
+    Prior versions also folded cases by default, so that variables differing only in case, such as
+    'Var' and 'VAR' were treated as the same variable. Though this may have made sense when
+    lower case terminals and printers were just coming into use, those days are long gone.
+
+    The compiler option '-F' will enable folded cases (&CASE set to one).
 
 ## Known Problems and Limitations
 
