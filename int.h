@@ -42,7 +42,7 @@
 	%define	wc	rdx
 	%define wc_l	dl
 
-	%define ia	rbp
+	%define ia	r12
 
 ;	%define	cfp_b	8
 

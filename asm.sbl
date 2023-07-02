@@ -543,7 +543,7 @@ init
 
    wc = 'rdx'
 
-   ia = 'rbp'
+   ia = 'r12'
 
    cp = 'cp'
 
@@ -559,7 +559,7 @@ init
    w0 = 'w0'; wa = 'wa'; wb = 'wb'; wc = 'wc'
    xl = 'xl'; xr = 'xr'; xs = 'xs'; xt = xl
 
-*  _ia_ is mapped to _rbp_ in nasm.h.
+*  _ia_ is mapped to _r12_ in nasm.h.
 
    ia = 'ia'
 
