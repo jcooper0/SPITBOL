@@ -632,9 +632,7 @@ int brkx( void *addr )
  *		count are reset appropriately by restart().
  *
  */
-int makeexec( scptr, type )
-struct scblk *scptr;
-int type;
+int makeexec( struct scblk *scptr, int type )
 {
     word	save_wa, save_wb, save_ia, save_xr;
     int		result;
@@ -665,9 +663,7 @@ int type;
  *
  *  restricted upper case function.  Only acts on 'a' through 'z'.
  */
-word 
-uppercase(c)
-word c;
+word uppercase(word c)
 {
     if (c >= 'a' && c <= 'z')
         c += 'A' - 'a';
