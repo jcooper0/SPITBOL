@@ -75,7 +75,7 @@
 	d_word	p_alt	; p1blk type word - 6
 	d_word	p_any	; p2blk type word - 7
 ; next needed only if support real arithmetic cnra
-;	d_word	b_rcl	; rcblk type word - 8
+	d_word	b_rcl	; rcblk type word - 8
 	d_word	b_scl	; scblk type word - 9
 	d_word	b_sel	; seblk type word - 10
 	d_word	b_tbt	; tbblk type word - 11
@@ -226,17 +226,3 @@ calltab:
 	add	rax,cfp_b
 	mov	m_word [reg_cp],rax
 	%endmacro
-
-	%macro	rov_	1
-	mov	al,byte [reg_fl]
-	test	al,al
-	jnz	%1
-	%endmacro
-
-	%macro	rno_	1
-	mov	al,byte [reg_fl]
-	test	al,al
-	jz	%1
-	%endmacro
-
-
