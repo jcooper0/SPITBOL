@@ -1952,19 +1952,8 @@ g_sbi
 
 g_dvi
    genop('mov', r10, getarg(i1))
-   genop('test', r10, r10)
-   genop('jz', (t1 = genlab()))
-   genop('mov', w0, ia)
-   genop('cdq')
-   genop('idiv', r10)
-   genop('mov', ia, w0)
-* Clear overflow
-   genop('xor', w0, w0)
-   genop('jmp', (t2 = genlab()))
-* Set overflow
-   genopl(t1 '  :', 'xor', w0, w0)
-   genop('cmp', 'al','-128')
-   genopl(t2 '  :')
+   genop('call','do_dvi')
+
                      :(opdone)
 
 *  *   4.6   RMI   _ops_
@@ -1973,19 +1962,7 @@ g_dvi
 
 g_rmi
    genop('mov',r10, getarg(i1))
-   genop('test',r10, r10)
-   genop('jz', (t1 = genlab()))
-   genop('mov',w0,ia)
-   genop('cdq')
-   genop('idiv',r10)
-   genop('mov',ia, wc)
-* Clear overflow
-   genop('xor', w0, w0)
-   genop('jmp', (t2 = genlab()))
-* Set overflow
-   genopl(t1 '  :', 'xor', w0, w0)
-   genop('cmp', 'al', '-128')
-   genopl(t2 '  :')
+   genop('call', 'do_rmi')
                      :(opdone)
 *  *   4.7   STI   _ops_
 
@@ -2115,14 +2092,10 @@ g_dvr
 *  overflow (ADR,SBR MLR DVR.
 
 g_rov
-   genop('movapd', 'xmm1', ra)
-   genop('andpd', 'xmm1', 'm_reall [neg1f]')
-   genop('ucomisd', 'xmm1', 'm_real [infl]')
+   genop('call', 'do_chk_real_inf')
    genop('ja', getarg(i1))          :(opdone)
 g_rno
-   genop('movapd', 'xmm1', ra)
-   genop('andpd', 'xmm1', 'm_reall [neg1f]')
-   genop('ucomisd', 'xmm1', 'm_real [infl]')
+   genop('call', 'do_chk_real_inf')
    genop('jbe', getarg(i1))          :(opdone)
 
 *  *   5.9 NGR

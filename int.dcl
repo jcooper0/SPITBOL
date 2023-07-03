@@ -226,3 +226,49 @@ calltab:
 	add	rax,cfp_b
 	mov	m_word [reg_cp],rax
 	%endmacro
+
+; opcode helpers
+	section .text
+
+; divide ia by r10 result in ia
+; clobbers wc:w0
+; set overflow
+do_dvi:
+	test	r10,r10			; check for divide by zero
+	jz		do_dvi_over		; set overflow
+	mov		w0,ia
+	cdq
+	idiv	r10
+	mov		ia,w0
+	xor		w0,w0
+	ret
+do_dvi_over:
+	xor		w0,w0
+	cmp     al,-128
+	ret
+
+; remained of ia by r10 result in ia
+; clobbers wc:w0
+; set overflow
+do_rmi:
+	test	r10,r10			; check for divide by zero
+	jz		do_rmi_over		; set overflow
+	mov		w0,ia
+	cdq
+	idiv	r10
+	mov		ia,wc
+	xor		w0,w0
+	ret
+do_rmi_over:
+	xor		w0,w0
+	cmp     al,-128
+	ret
+
+; Check ra for inf
+; clobbers xmm1
+; sets
+do_chk_real_inf:
+	movapd	xmm1,ra
+	andpd	xmm1,m_reall [neg1f]
+	ucomisd xmm1,m_real [infl]
+	ret
