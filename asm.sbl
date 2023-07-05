@@ -546,7 +546,7 @@ init
    ia = 'r12'
    ra = 'xmm12'
 
-   cp = 'cp'
+   cp = 'r13'
 
    xl = 'rsi'
    xl = 'xl'
@@ -571,6 +571,7 @@ init
 
    ia = 'ia'
    ra = 'ra'
+   cp = 'r13'
 
 *  cp is kept in memory
 
@@ -1882,14 +1883,14 @@ g_bod
 *  This instruction causes the code pointer register to be set from the
 *  value in _reg_ which is unchanged
 
-g_lcp genop(op_,getarg(i1))            :(opdone)
+g_lcp genop('mov', cp, getarg(i1))            :(opdone)
 
 *  *   3.2   SCP   _reg_
 
 *  Store code pointer register this instruction loads the current value in the code pointer
 *  register into reg_ (CP ) is unchanged.
 
-g_scp      genop(op_,getarg(i1))       :(opdone)
+g_scp genop('mov',getarg(i1), cp)       :(opdone)
 
 *  *   3.3   LCW  _reg_
 
@@ -1900,7 +1901,9 @@ g_scp      genop(op_,getarg(i1))       :(opdone)
 
 *  Execution of LCW may destroy XL .
 
-g_lcw  genop(op_,getarg(i1))           :(opdone)
+g_lcw  genop('mov', 'r10', 'm_word [r13]')
+       genop('mov', getarg(i1, 'm_word'), 'r10')
+       genop('add', cp, 'cfp_b')           :(opdone)
 
 *  *   3.4   ICP
 
@@ -1910,7 +1913,7 @@ g_lcw  genop(op_,getarg(i1))           :(opdone)
 
 *  Current implementation keeps *CP* in memory.
 
-g_icp genop(op_,getarg(i1))            :(opdone)
+g_icp genop('add', cp, 'cfp_b')            :(opdone)
 
 *  #### 4-   Operations on Signed Integer Values
 

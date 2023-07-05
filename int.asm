@@ -161,7 +161,7 @@ reg_wb:	d_word	0		; register wb (rbx)
 reg_wc:	d_word	0		; register wc (rdx)
 reg_xl:	d_word	0		; register xl (rsi)
 reg_xr:	d_word	0		; register xr (rdi)
-reg_cp:	d_word	0		; register cp
+reg_cp:	d_word	0		; register cp (r13)
 reg_ra:	d_real	0.0		; register ra (xmm12)
 
 ; these locations save information needed to return after calling osint
@@ -466,6 +466,7 @@ stackinit:
 	mov	rdi,m_word [reg_xr]
 	mov	rsi,m_word [reg_xl]
 	mov   r12,m_word [reg_ia]
+	mov   r13,m_word [reg_cp]
 	movsd xmm12,m_real [reg_ra]
 
 	mov	m_word [osisp],rsp	; save osint stack pointer
@@ -485,6 +486,7 @@ stackinit:
 	mov	m_word [reg_xr],rdi
 	mov	m_word [reg_xl],rsi
 	mov   m_word [reg_ia],r12
+	mov   m_word [reg_cp],r13
 	movsd m_word [reg_ra],xmm12
 	ret
 
@@ -558,6 +560,7 @@ syscall_init:
 	mov	m_word [reg_xr],rdi
 	mov	m_word [reg_xl],rsi
 	mov	m_word [reg_ia],r12
+	mov	m_word [reg_cp],r13
 	movsd	m_real [reg_ra],xmm12
 	ret
 
@@ -571,6 +574,7 @@ syscall_exit:
 	mov	rdi,m_word [reg_xr]
 	mov	rsi,m_word [reg_xl]
 	mov	r12,m_word [reg_ia]
+	mov	r13,m_word [reg_cp]
 	movsd xmm12,m_real [reg_ra]
 	cld
 	mov	rax,m_word [reg_pc]
@@ -762,9 +766,11 @@ sysxi:	mov	m_word [reg_xs],rsp
 	push	rdx
 	push	rcx
 	push  r12
+	push  r13
 	movsd	[reg_ra], ra
 	call	%2
 	movsd ra, [reg_ra]
+	pop   r13
 	pop   r12
 	pop	rcx
 	pop	rdx

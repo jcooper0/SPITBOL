@@ -197,35 +197,7 @@ calltab:
 
 ;	integer arithmetic instructions
 
-
-;	code pointer instructions (cp maintained in location reg_cp)
-
 	extern	reg_cp
-
-	%macro	lcp_	1
-	mov	rax,%1
-	mov	m_word [reg_cp],rax
-	%endmacro
-
-	%macro	lcw_	1
-	mov	rax,m_word [reg_cp]		; load address of code word
-	mov	rax,m_word [rax]			; load code word
-	mov	%1,rax
-	mov	rax,m_word [reg_cp]		; load address of code word
-	add	rax,cfp_b
-	mov	m_word [reg_cp],rax
-	%endmacro
-
-	%macro	scp_	1
-	mov	rax,m_word [reg_cp]
-	mov	%1,rax
-	%endmacro
-
-	%macro	icp_	0
-	mov	rax,m_word [reg_cp]
-	add	rax,cfp_b
-	mov	m_word [reg_cp],rax
-	%endmacro
 
 ; opcode helpers
 	section .text
