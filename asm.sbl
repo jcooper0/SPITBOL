@@ -1303,17 +1303,16 @@ g_ent
 *  2 and 4 are even.
 
    t1 = i.text(i1)
-   outfile = tab 'align' tab '2'
+   genop('align', 2)
    differ(t1)              :s(g_ent.1)
-   outfile = tab 'nop'
+   genop('nop')
                      :(g_ent.2)
 g_ent.1
 
-   outfile = tab 'db' tab  t1
+   genop('db', t1)
 
 g_ent.2
 
-   outlines = outlines + 2
    genopl(thislabel)
 
 *  note that want to attach label to last instruction
@@ -1579,11 +1578,11 @@ g_dcv
 
 g_zer
 
-   ident(i.text(i1),'(xr)+') genop('mov',w0,'0')
+   ident(i.text(i1),'(xr)+') genop('xor',w0, w0)
 +        genop('stos_w')            :s(opdone)
    isreg(i1)               :s(g_zer1)
    ident(i.text(i1),'-(xs)')        :s(g_zer.xs)
-   genop('mov',w0,'0')
+   genop('xor',w0, w0)
    genop('mov',getarg(i1),w0)       :(opdone)
 
 g_zer1
@@ -2277,7 +2276,7 @@ g_lch
 g_lcg_1
 
    t2 break('(') len(1) len(2) . t3
-   eq(cfp_b,cfp_c) genop('mov',w0,'0')
+   eq(cfp_b,cfp_c) genop('xor',w0, w0)
    eq(cfp_b,cfp_c) genop('mov','al','m_char [' register(t3) ']')
    eq(cfp_b,cfp_c) genop('mov',t1,w0)
 
