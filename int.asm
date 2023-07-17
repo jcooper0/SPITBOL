@@ -728,45 +728,6 @@ sysxi:	mov	m_word [reg_xs],rsp
 	add	rsp,%2		; pop arguments
 	%endmacro
 
-;	x64 hardware divide, expressed in form of minimal register mappings, requires dividend be
-;	placed in rax, which is then sign extended into rdx:rax. after the divide, rax contains the
-;	quotient, rdx contains the remainder.
-;
-;	cvd__ - convert by division
-;
-;	input	ia = number <=0 to convert
-;	output	ia / 10
-;		wa ecx) = remainder + '0'
-	global	cvd__
-cvd__:
-	extern	i_cvd
-	mov	m_word [reg_ia],r12
-	mov	m_word [reg_wa],rcx
-	push	rdi
-	push	rsi
-	push	rdx
-	call	i_cvd
-	pop	rdx
-	pop	rsi
-	pop	rdi
-	mov	r12,m_word [reg_ia]
-	mov	rcx,m_word [reg_wa]
-	ret
-
-
-ocode:
-	or	rax,rax			; test for 0
-	jz	setovr		; jump if 0 divisor
-	xchg	rax,r12			; ia to rax, divisor to ia
-	cdq			; extend dividend
-	idiv	r12		 ; perform division. rax=quotient, rdx=remainder
-	seto	byte [reg_fl]
-	mov	r12,rdx
-	ret
-
-setovr: mov	al,1		; set overflow indicator
-	mov	byte [reg_fl],al
-	ret
 
 	%macro	real_op 2
 	global	%1
@@ -815,25 +776,7 @@ setovr: mov	al,1		; set overflow indicator
 	real_op	ngr_,f_ngr
 	real_op 	cpr_,f_cpr
 
-	%macro	int_op 2
-	global	%1
-	extern	%2
-%1:
-	push	rdi
-	push	rsi
-	push	rdx
-	push	rcx
-	mov	m_word [reg_ia],r12
-	call	%2
-	pop	rcx
-	pop	rdx
-	pop	rsi
-	pop	rdi
-	ret
-%endmacro
 
-	int_op itr_,f_itr
-	int_op rti_,f_rti
 
 	%macro	math_op 2
 	global	%1
