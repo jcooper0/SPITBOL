@@ -25,6 +25,7 @@
 
 	%define m_real	qword	; reference to floating point value in memory
 	%define d_real	dq	; define value for floating point
+	%define m_reall oword	; 128-bit
 ; N INCLUDE
 	%define	xl	rsi
 	%define xr	rdi
@@ -43,6 +44,7 @@
 	%define wc_l	dl
 
 	%define ia	r12
+	%define ra 	xmm12
 
 ;	%define	cfp_b	8
 

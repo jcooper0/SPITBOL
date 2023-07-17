@@ -544,6 +544,7 @@ init
    wc = 'rdx'
 
    ia = 'r12'
+   ra = 'xmm12'
 
    cp = 'cp'
 
@@ -566,8 +567,10 @@ init
 
 * Global registers that are preserved
 *  _ia_ is mapped to _r12_ in nasm.h.
+*  _ra_ is mapped to _xmm12_ in nasm.h
 
    ia = 'ia'
+   ra = 'ra'
 
 *  cp is kept in memory
 
@@ -2088,16 +2091,18 @@ op.cmp
 *  Particular care may be needed on target machines having distinct overflow and divide by zero conditions.
 
 g_ldr
+   genop('movsd', ra, getarg(i1,'m_real'))   :(opdone)
 g_str
+   genop('movsd', getarg(i1, 'm_real'), ra)  :(opdone)
 g_adr
+   genop('addsd', ra, getarg(i1, 'm_real'))  :(opdone)
 g_sbr
+   genop('subsd', ra, getarg(i1, 'm_real'))  :(opdone)
 g_mlr
+   genop('mulsd', ra, getarg(i1, 'm_real'))  :(opdone)
 g_dvr
+   genop('divsd', ra, getarg(i1, 'm_real'))  :(opdone)
 
-   t1 = getarg(i1,'m_word')
-   genop('lea',w0,t1)
-   genop('call',op_)
-                     :(opdone)
 *  *   5.7   ROV  _plbl_
 
 *  Jump to _plbl_ real overflow
@@ -2110,15 +2115,21 @@ g_dvr
 *  overflow (ADR,SBR MLR DVR.
 
 g_rov
+   genop('movapd', 'xmm1', ra)
+   genop('andpd', 'xmm1', 'm_reall [neg1f]')
+   genop('ucomisd', 'xmm1', 'm_real [infl]')
+   genop('ja', getarg(i1))          :(opdone)
 g_rno
-   genop(op_,getarg(i1))            :(opdone)
+   genop('movapd', 'xmm1', ra)
+   genop('andpd', 'xmm1', 'm_reall [neg1f]')
+   genop('ucomisd', 'xmm1', 'm_real [infl]')
+   genop('jbe', getarg(i1))          :(opdone)
 
 *  *   5.9 NGR
 
 *  Negate real accumulator (change sign)
 
-g_ngr genop('call',op_)
-                     :(opdone)
+g_ngr genop('xorpd', ra, 'm_reall [negc]')   :(opdone)
 *  *   5.10 REQ  _plbl_
 
 *  Jump to _plbl_ if (RA) eq 0.0
@@ -2147,14 +2158,13 @@ g_ngr genop('call',op_)
 
 g_req jop = 'je'              :(g_r1)
 g_rne jop = 'jne'             :(g_r1)
-g_rge jop = 'jge'             :(g_r1)
-g_rgt jop = 'jg'              :(g_r1)
-g_rle jop = 'jle'             :(g_r1)
-g_rlt jop = 'jl'
-g_r1  genop('call','cpr_')
-
-   genop('mov','al','byte [reg_fl]')
-   genop('or','al','al')
+g_rge jop = 'jae'             :(g_r1)
+g_rgt jop = 'ja'              :(g_r1)
+g_rle jop = 'jbe'             :(g_r1)
+g_rlt jop = 'jb'
+g_r1
+   genop('pxor', 'xmm0', 'xmm0')
+   genop('ucomisd', ra, 'xmm0')
    genop(jop,getarg(i1))            :(opdone)
 
 *  *   5.16 ATN
@@ -2203,9 +2213,7 @@ g_lnf
 g_sin
 g_sqr
 g_tan
-
-   genop('call',op_)
-                     :(opdone)
+   genop('call',op_)    :(opdone)
 
 *  #### 6-   Operations on Character Values
 
@@ -2709,9 +2717,8 @@ g_mfi.2
 *  (may lose precision in some cases)
 
 g_itr
-   genop('pxor', 'xmm0', 'xmm0')
-   genop('cvtsi2sd', 'xmm0', ia)
-   genop('movsd', 'm_word [reg_ra]', 'xmm0') :(opdone)
+   genop('pxor', ra, ra)
+   genop('cvtsi2sd', ra, ia)  :(opdone)
 
 *  *   8.6   RTI  _plbl_
 
@@ -2725,8 +2732,7 @@ g_itr
 *  The following instructions provide for computing the length of storage required for a text string_
 
 g_rti
-   genop('movsd', 'xmm0', 'm_real [reg_ra]')
-   genop('cvttsd2si', ia, 'xmm0')
+   genop('cvttsd2si', ia, ra)
    eq(i.type(i1))             :s(opdone)
 
 *  here if label given, branch if real too large

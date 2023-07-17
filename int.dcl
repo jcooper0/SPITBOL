@@ -24,8 +24,10 @@
 	extern	restore_regs
 	extern	_rc_
 	extern	reg_fl
-	extern	reg_w0
 	extern  reg_ra
+	extern  neg1f
+	extern  infl
+	extern  negc
 
 	global	mxint
 
@@ -192,7 +194,6 @@ calltab:
 	call	zzz
 	%endmacro
 
-	extern	reg_ia,reg_wa,reg_fl,reg_w0,reg_wc
 
 ;	integer arithmetic instructions
 

@@ -32,7 +32,7 @@ This file is part of Macro SPITBOL.
 
 #if (FLOAT & !FLTHDWR) | EXTFUN
 
-
+/*
 // overflow codes
 // OF = 0x80
 // cf = 0x01
@@ -104,6 +104,6 @@ void i_cvd() {
 	reg_ia /= 10;
 	reg_wa  = -reg_wa + '0'; // convert remainder to character code for digit
 }
-
+*/
 #endif					// (FLOAT & !FLTHDWR) | EXTFUN
 

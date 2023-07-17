@@ -162,12 +162,12 @@ reg_wc:	d_word	0		; register wc (rdx)
 reg_xl:	d_word	0		; register xl (rsi)
 reg_xr:	d_word	0		; register xr (rdi)
 reg_cp:	d_word	0		; register cp
-reg_ra:	d_real	0.0		; register ra
+reg_ra:	d_real	0.0		; register ra (xmm12)
 
 ; these locations save information needed to return after calling osint
 ; and after a restart from exit()
 
-reg_pc: d_word	    0		    ; return pc from caller
+reg_pc:	d_word	0		; return pc from caller
 reg_xs:	d_word	0		; minimal stack pointer
 
 ;	r_size	equ	  $-reg_block
@@ -193,11 +193,26 @@ reg_flerr:  d_word 	0 	; Floatint point error
 ;  constants
 
 	global	ten
-ten:	d_word	    10		    ; constant 10
+ten:	d_word	10		    ; constant 10
 	global	inf
 inf:	d_word	0
-	d_word	    0x7ff00000	    ; double precision infinity
-
+	d_word	0x7ff00000	    ; double precision infinity
+	global infl
+	align 8
+infl: dd     -1
+	dd	2146435071
+	global neg1f
+	align 16
+neg1f: dd         -1
+      dd         2147483647
+      dd         0
+      dd         0
+      global negc
+      align 16
+negc: dd         0
+      dd         -2147483648
+	dd         0
+	dd         0
 	global	sav_block
 ;sav_block: times r_size db 0		; save minimal registers during push/pop reg
 sav_block: times 44 db 0		; save minimal registers during push/pop reg
@@ -224,6 +239,7 @@ _rc_:	dd   0				; return code from osint procedure
 	global	save_wb
 	global	save_wc
 	global	save_w0
+	global	save_ra
 save_cp:	d_word	0		; saved cp value
 save_ia:	d_word	0		; saved ia value
 save_xl:	d_word	0		; saved xl value
@@ -233,6 +249,7 @@ save_wa:	d_word	0		; saved wa value
 save_wb:	d_word	0		; saved wb value
 save_wc:	d_word	0		; saved wc value
 save_w0:	d_word	0		; saved w0 value
+save_ra:    d_real      0.0         ; saved ra value
 
 	global	minimal_id
 minimal_id:	d_word	0		; id for call to minimal from c. see proc minimal below.
@@ -319,7 +336,7 @@ ttybuf:	d_word	  0	; type word
 	segment	.text
 	global	save_regs
 save_regs:
-	mov	m_word [save_ia],rdx
+	mov	m_word [save_ia],r12
 	mov	m_word [save_xl],rsi
 	mov	m_word [save_xr],rdi
 	mov	m_word [save_xs],rsp
@@ -327,12 +344,13 @@ save_regs:
 	mov	m_word [save_wb],rbx
 	mov	m_word [save_wc],rdx
 	mov	m_word [save_w0],rax
+	movsd m_real [save_ra],xmm12
 	ret
 
 	global	restore_regs
 restore_regs:
 	;	restore regs, except for sp. that is caller's responsibility
-	mov	rdx,m_word [save_ia]
+	mov	r12,m_word [save_ia]
 	mov	rsi,m_word [save_xl]
 	mov	rdi,m_word [save_xr]
 ;	mov	rsp,m_word [save_xs	; caller restores sp]
@@ -340,6 +358,7 @@ restore_regs:
 	mov	rbx,m_word [save_wb]
 	mov	rdx,m_word [save_wc]
 	mov	rax,m_word [save_w0]
+	movsd	xmm12,m_real [save_ra]
 	ret
 ; ;
 ; ;	  startup( char *dummy1, char *dummy2) - startup compiler
@@ -446,6 +465,8 @@ stackinit:
 	mov	rdx,m_word [reg_wc]	;
 	mov	rdi,m_word [reg_xr]
 	mov	rsi,m_word [reg_xl]
+	mov   r12,m_word [reg_ia]
+	movsd xmm12,m_real [reg_ra]
 
 	mov	m_word [osisp],rsp	; save osint stack pointer
 	cmp	m_word [compsp],0	; is there a compiler stack?
@@ -463,6 +484,8 @@ stackinit:
 	mov	m_word [reg_wc],rdx
 	mov	m_word [reg_xr],rdi
 	mov	m_word [reg_xl],rsi
+	mov   m_word [reg_ia],r12
+	movsd m_word [reg_ra],xmm12
 	ret
 
 
@@ -535,6 +558,7 @@ syscall_init:
 	mov	m_word [reg_xr],rdi
 	mov	m_word [reg_xl],rsi
 	mov	m_word [reg_ia],r12
+	movsd	m_real [reg_ra],xmm12
 	ret
 
 syscall_exit:
@@ -547,6 +571,7 @@ syscall_exit:
 	mov	rdi,m_word [reg_xr]
 	mov	rsi,m_word [reg_xl]
 	mov	r12,m_word [reg_ia]
+	movsd xmm12,m_real [reg_ra]
 	cld
 	mov	rax,m_word [reg_pc]
 	jmp	rax
@@ -728,56 +753,6 @@ sysxi:	mov	m_word [reg_xs],rsp
 	add	rsp,%2		; pop arguments
 	%endmacro
 
-
-	%macro	real_op 2
-	global	%1
-	extern	%2
-%1:
-	push	rdi
-	push	rsi
-	push	rdx
-	push	rcx
-	mov	m_word [reg_rp],rax
-	call	%2
-	pop	rcx
-	pop	rdx
-	pop	rsi
-	pop	rdi
-	ret
-%endmacro
-
-	%macro	real_op_fl 2
-	global	%1
-	extern	%2
-%1:
-	push	rdi
-	push	rsi
-	push	rdx
-	push	rcx
-	mov	m_word [reg_rp],rax
-	call	%2
-	pop	rcx
-	pop	rdx
-	pop	rsi
-	pop	rdi
-
-	mov 	rax, m_word [reg_flerr]	; Combine
-	and	al, 0x1f			; INVALID | DIVBYZERO | OVERFLOW | UNDERFLOW
-	mov	byte [reg_fl], al
-%%done: ret
-%endmacro
-
-	real_op	ldr_,f_ldr
-	real_op	str_,f_str
-	real_op_fl	adr_,f_adr
-	real_op_fl	sbr_,f_sbr
-	real_op_fl	mlr_,f_mlr
-	real_op_fl	dvr_,f_dvr
-	real_op	ngr_,f_ngr
-	real_op 	cpr_,f_cpr
-
-
-
 	%macro	math_op 2
 	global	%1
 	extern	%2
@@ -786,15 +761,15 @@ sysxi:	mov	m_word [reg_xs],rsp
 	push	rsi
 	push	rdx
 	push	rcx
+	push  r12
+	movsd	[reg_ra], ra
 	call	%2
+	movsd ra, [reg_ra]
+	pop   r12
 	pop	rcx
 	pop	rdx
 	pop	rsi
 	pop	rdi
-	xor   rax,rax
-	mov	rax, [reg_flerr]		; 0x01       0x04        0x08       0x10
-	and	al, 0x1f			; INVALID | DIVBYZERO | OVERFLOW | UNDERFLOW
-	mov	byte [reg_fl], al
 %%done	ret
 %endmacro
 
@@ -806,14 +781,6 @@ sysxi:	mov	m_word [reg_xs],rsp
 	math_op	sin_,f_sin
 	math_op	sqr_,f_sqr
 	math_op	tan_,f_tan
-
-;	ovr_ test for overflow value in ra
-	global	ovr_
-ovr_:
-	mov	ax, word [reg_ra+6]	; get top 2 bytes
-	and	ax, 0x7ff0		; check for infinity or nan
-	add	ax, 0x10		; set/clear overflow accordingly
-	ret
 
 	global	get_fp			; get frame pointer
 
