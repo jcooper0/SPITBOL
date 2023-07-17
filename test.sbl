@@ -1,0 +1,12 @@
+   define('foo(s)') :(foo.end)
+foo
+   res = eval(s)       :f(foo.err)
+   output = s '=' res  :(return)
+foo.err
+   output = 'failed with: ' &errtext :(return)
+foo.end
+   s = 'sqrt(-1)'
+   foo(s)
+end
+
+

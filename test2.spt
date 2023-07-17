@@ -1,0 +1,12 @@
+          &dump = 2
+          epsi = 0.1; ict2 = 0
+          y     = ln(3)
+          yf    = y - chop(y)
+          gt(yf,epsi)               :S(l1)
+          output = ict2
+          ict2  = ict2 + 1 
+          output = '>' ict2
+                   :(l2)
+l1        terminal = "gt succeeded"
+l2        terminal = "yf=" yf "; y=" y "; ict2 = " ict2
+end

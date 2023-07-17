@@ -1,0 +1,14 @@
+   define('foo(s)')  :(foo.end)
+foo foo = eval(s) :(return)
+foo.end
+   &stlimit = 9000000
+   i = 0
+loop i = foo('i + 1') :(loop)
+end
+
+
+
+
+
+
+

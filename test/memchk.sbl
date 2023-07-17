@@ -1,0 +1,29 @@
+        define('chks(expr)')             :(defines.end)
+* Evaluate an expression and report it's result
+chks
+        result = eval(expr)             :f(chks.oops)
+        routput = 'Check ' expr ' result=[' result ']' :(return)
+chks.oops
+        routput = 'Check ' expr ' Failed: ' &errtext   :(return)
+chks.mismatch
+        routput = 'Check ' expr ' Result=' result ' Expected=' val       :(return)
+
+trapexception
+        routput = 'Exception caught ' &errtext            :(continue)
+defines.end
+
+        &errlimit = 1000
+        setexit(.trapexception)
+        PI = 3.141592653589793
+        E = 2.718281828459045
+        i = 0
+        &stlimit = 900000
+loop                                 
+        chks('1 / 0') :(loop)
+
+end
+
+
+
+
+
