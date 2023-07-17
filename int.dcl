@@ -25,6 +25,7 @@
 	extern	_rc_
 	extern	reg_fl
 	extern	reg_w0
+	extern  reg_ra
 
 	global	mxint
 

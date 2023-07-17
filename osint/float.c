@@ -86,16 +86,6 @@ void f_ngr() {			// negate real
 	return;
 }
 
-void f_itr() {			// integer to real
-	reg_ra = (double) reg_ia;
-	return;
-}
-
-void f_rti() {			// real to integer
-	reg_ia = reg_ra;
-}
-
-
 void f_cpr() {
 	if ( reg_ra == 0.0)
 		reg_fl =  0;

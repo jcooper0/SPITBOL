@@ -559,6 +559,12 @@ init
    w0 = 'w0'; wa = 'wa'; wb = 'wb'; wc = 'wc'
    xl = 'xl'; xr = 'xr'; xs = 'xs'; xt = xl
 
+*  internal work registers
+*  r10, r11 scope only within individual minimal opcodes
+*           values not preserved or used outside of the minimal opcode
+   r10 = 'r10'; r11 = 'r11'
+
+* Global registers that are preserved
 *  _ia_ is mapped to _r12_ in nasm.h.
 
    ia = 'ia'
@@ -1942,17 +1948,19 @@ g_sbi
 *  Divide integer accumulator by  _ops_
 
 g_dvi
-
-   genop('mov','byte [reg_fl]', 0)
-   genop('mov',wc,getarg(i1))
-   genop('test',wc,wc)
+   genop('mov', r10, getarg(i1))
+   genop('test', r10, r10)
    genop('jz', (t1 = genlab()))
-   genop('mov',w0,ia)
+   genop('mov', w0, ia)
    genop('cdq')
-   genop('idiv',getarg(i1))
-   genop('mov',ia,w0)
+   genop('idiv', r10)
+   genop('mov', ia, w0)
+* Clear overflow
+   genop('xor', w0, w0)
    genop('jmp', (t2 = genlab()))
-   genopl(t1 '  :', 'mov', 'byte [reg_fl]', 1)
+* Set overflow
+   genopl(t1 '  :', 'xor', w0, w0)
+   genop('cmp', 'al','-128')
    genopl(t2 '  :')
                      :(opdone)
 
@@ -1961,16 +1969,19 @@ g_dvi
 *  Set integer accumulator to `mod(intacc,_ops_)`
 
 g_rmi
-   genop('mov','byte [reg_fl]', 0)
-   genop('mov',wc,getarg(i1))
-   genop('test',wc,wc)
+   genop('mov',r10, getarg(i1))
+   genop('test',r10, r10)
    genop('jz', (t1 = genlab()))
    genop('mov',w0,ia)
    genop('cdq')
-   genop('idiv',getarg(i1))
-   genop('mov',ia,wc)
+   genop('idiv',r10)
+   genop('mov',ia, wc)
+* Clear overflow
+   genop('xor', w0, w0)
    genop('jmp', (t2 = genlab()))
-   genopl(t1 '  :', 'mov', 'byte [reg_fl]', 1)
+* Set overflow
+   genopl(t1 '  :', 'xor', w0, w0)
+   genop('cmp', 'al', '-128')
    genopl(t2 '  :')
                      :(opdone)
 *  *   4.7   STI   _ops_
@@ -2702,8 +2713,9 @@ g_mfi.2
 *  (may lose precision in some cases)
 
 g_itr
-
-   genop('call','itr_')          :(opdone)
+   genop('pxor', 'xmm0', 'xmm0')
+   genop('cvtsi2sd', 'xmm0', ia)
+   genop('movsd', 'm_word [reg_ra]', 'xmm0') :(opdone)
 
 *  *   8.6   RTI  _plbl_
 
@@ -2717,13 +2729,14 @@ g_itr
 *  The following instructions provide for computing the length of storage required for a text string_
 
 g_rti
-
-   genop('rti_')
+   genop('movsd', 'xmm0', 'm_real [reg_ra]')
+   genop('cvttsd2si', ia, 'xmm0')
    eq(i.type(i1))             :s(opdone)
 
 *  here if label given, branch if real too large
-
-   genop('jc',getarg(i1))           :(opdone)
+   genop('mov', r10, '0x80000000')
+   genop('cmp', ia, r10)
+   genop('je',getarg(i1))           :(opdone)
 
 *  *   8.7   CTW  _w,val_
 
@@ -2807,7 +2820,19 @@ g_cvm t1 = getarg(i1)
 
 g_cvd
 
-   genop('cvd_')              :(opdone)
+   genop('mov', r10, ia)
+   genop('mov', w0, '7378697629483820647')
+   genop('imul', r10)
+   genop('mov', w0, r10)
+   genop('sar', w0, '63')
+   genop('sar', wc, '2')
+   genop('sub', wc, w0)
+   genop('lea', w0, '[wc+wc*4]')
+   genop('mov', ia, wc)
+   genop('add', w0, w0)
+   genop('sub', w0, r10)
+   genop('add', w0, '48')
+   genop('mov', wa, w0)       :(opdone)
 
 *  #### 9-   Block Move Instructions
 
