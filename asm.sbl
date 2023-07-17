@@ -2051,9 +2051,8 @@ g_ilt jop = 'jl'              :(op.cmp)
 g_ine jop = 'jne'             :(op.cmp)
 op.cmp
 
-   genop('sti_',w0)
-   genop('or',w0,w0)
-   genop(jop,getarg(i1))            :(opdone)
+   genop('cmp',ia, '0')
+   genop(jop, getarg(i1))            :(opdone)
 
 *   #### 5- Operations on Real Values
 
@@ -2664,12 +2663,11 @@ g_btw genop('shr',getarg(i1),'log_cfp_b')    :(opdone)
 
 g_mti ident(i.text(i1),'(xs)+')        :f(g_mti.1)
 
-   genop('pop',w0)
-   genop('ldi_',w0)           :(opdone)
+   genop('pop', ia)           :(opdone)
 
 g_mti.1
 
-   genop('ldi_',getarg(i1))         :(opdone)
+   genop('mov', ia, getarg(i1))         :(opdone)
 
 *  *   8.4   MFI   _opn,plbl_
 
@@ -2693,19 +2691,17 @@ g_mfi
 
 *  here if label given, branch if wc not in range (ie, negative)
 
-   genop('sti_',w0)
-   genop('or',w0,w0)
-   genop('js',getarg(i2))
+   genop('test', ia, ia)
+   genop('js', getarg(i2))
 
 g_mfi.1
 
-   ident(i.text(i1),'-(xs)')        :s(g_mfi.2)
-   genop('sti_',getarg(i1))         :(opdone)
+   ident(i.text(i1), '-(xs)')           :s(g_mfi.2)
+   genop('mov', getarg(i1), ia)         :(opdone)
 
 g_mfi.2
 
-   genop('sti_',w0)
-   genop('push',w0)           :(opdone)
+   genop('push', ia)                    :(opdone)
 
 *  *   8.5   ITR
 
@@ -2798,12 +2794,12 @@ g_ctb.1
 
 g_cvm t1 = getarg(i1)
 
-   genop('sti_',w0)
+   genop('mov',w0, ia)
    genop('imul',w0,'10')
    genop('jo',t1)
    genop('sub',register(wb),'ch_d0')
    genop('sub',w0,register(wb))
-   genop('ldi_',w0)
+   genop('mov',ia, w0)
    genop('jo',t1)
                      :(opdone)
 
