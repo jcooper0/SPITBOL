@@ -1750,7 +1750,7 @@ g_bnz
                      :(opdone)
 g_bnz1
 
-   genop('or',getarg(i1),getarg(i1))
+   genop('test',getarg(i1), getarg(i1))
    genop('jnz',getarg(i2))
                      :(opdone)
 
@@ -1762,7 +1762,7 @@ g_bze isreg(i1)               :s(g_bze1)
 g_bze1
 
    t1 = getarg(i1)
-   genop('or',t1,t1)
+   genop('test',t1, t1)
    genop('jz',getarg(i2))           :(opdone)
 
 *  *   2.15 LCT  _w,opv_
@@ -2013,9 +2013,9 @@ g_ngi
 *  IOV and INO may not have labels.
 
 g_ino
+   genop('jno', getarg(i1))         :(opdone)
 g_iov
-
-   genop(op_,getarg(i1))            :(opdone)
+   genop('jo', getarg(i1))          :(opdone)
 
 *  *   4.11 IEQ  _plbl_
 
@@ -2602,7 +2602,7 @@ g_nzb isreg(i1)               :s(g_nzb1)
                      :(opdone)
 g_nzb1
 
-   genop('or',getarg(i1),getarg(i1))
+   genop('test',getarg(i1),getarg(i1))
    genop('jnz',getarg(i2))
                      :(opdone)
 *  *   7.10 ZRB  w,_plbl_
@@ -2616,7 +2616,7 @@ g_zrb isreg(i1)               :s(g_zrb1)
                      :(opdone)
 g_zrb1
 
-   genop('or',getarg(i1),getarg(i1))
+   genop('test',getarg(i1),getarg(i1))
    genop('jz',getarg(i2))
                      :(opdone)
 *  *   7.11 ZGB   _opn_
