@@ -6504,7 +6504,7 @@
 ||jsr|6,prtmx|||print it|16692
 ||ejc|||||16694
 |stpr2|mti|3,gbcnt|||load count of collections|16700
-||mov|7,xr|21,=stpm4||point to message /regenerations /|16701
+||mov|7,xr|21,=stpm5||point to message /regenerations /|16701
 ||jsr|6,prtmx|||print it|16702
 ||jsr|6,prtmm|||print memory usage|16703
 ||jsr|6,prtis|||one more blank for luck|16704
