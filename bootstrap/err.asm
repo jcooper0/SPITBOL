@@ -1,5 +1,7 @@
 ; compressed spitbol error messages 01/03/70 17:49:04
 ;
+  BITS 64
+  DEFAULT REL
 
 
 
