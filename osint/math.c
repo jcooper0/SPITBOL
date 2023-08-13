@@ -36,7 +36,6 @@ void f_atn()
 {
     feclearexcept(FE_ALL_EXCEPT);
     reg_ra = atan(reg_ra);
-    reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 }
 
 /*
@@ -49,7 +48,6 @@ void f_chp()
         reg_ra =  floor(reg_ra);
     else
         reg_ra =  ceil(reg_ra);
-    reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 }
 
 /*
@@ -59,7 +57,6 @@ void f_cos()
 {
     feclearexcept(FE_ALL_EXCEPT);
     reg_ra =  cos(reg_ra);
-    reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 }
 
 
@@ -74,7 +71,6 @@ void f_etx()
     if (errno) {
         reg_ra = inf;
     }
-    reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 }
 
 /*
@@ -89,7 +85,6 @@ void f_lnf()
     if (errno) {
         reg_ra = inf;
     }
-    reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 }
 
 /*
@@ -99,7 +94,6 @@ void f_sin()
 {
     feclearexcept(FE_ALL_EXCEPT);
     reg_ra = sin(reg_ra);
-    reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 }
 
 /*
@@ -109,7 +103,6 @@ void f_sqr()
 {
     feclearexcept(FE_ALL_EXCEPT);
     reg_ra = sqrt(reg_ra);
-    reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 }
 
 /*
@@ -122,6 +115,5 @@ void f_tan()
     result = tan(reg_ra);
     errno = 0;
     reg_ra = errno ? inf : result;
-    reg_flerr = fetestexcept(FE_SBL_EXCEPT);
 }
 #endif					// FLOAT & !MATHHDWR

@@ -186,7 +186,7 @@ reg_rp:     d_word      0
 reg_fl:     db    0           ; condition code register for numeric operations
 
       align 8
-fl_flags:   d_word      0     ; float flags
+mxcsr_save:  dd   0           ; Preserved mxcsr (restore when calling to C)
       global      reg_flerr
 reg_flerr:  d_word      0     ; Floatint point error
 
@@ -196,24 +196,27 @@ reg_flerr:  d_word      0     ; Floatint point error
       global      ten
 ten:  d_word      10              ; constant 10
       global      inf
-inf:  d_word      0
-      d_word      0x7ff00000      ; double precision infinity
-      global infl
       align 8
+; double precision
+;    0        1        2         3        4        5       6        7
+; seeeeeee eeeeffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff
+;
+zerop: dq         0x0000000000000000     ; Positive zero
+      global      zeron
+zeron: dq         0x8000000000000000     ; Negative zero
+infp:  dq         0x7ff0000000000000     ; Postive infinity
+infn:  dq         0x8ff0000000000000     ; Negative infinity
+inf:  dq          0x7ff0000000000000     ; double precision infinity
+nanp: dq          0x7fffffffffffffff     ; positive nan
+nann: dq          0xffffffffffffffff     ; negative nan
+
 infl: dd          -1
       dd          2146435071
+
       global neg1f
-      align 16
-neg1f: dd         -1
-      dd         2147483647
-      dd         0
-      dd         0
-      global negc
-      align 16
-negc: dd         0
-      dd         -2147483648
-      dd         0
-      dd         0
+      align 8
+neg1f: dq         0x7fffffffffffffff
+
       global      sav_block
 ;sav_block: times r_size db 0       ; save minimal registers during push/pop reg
 sav_block: times 44 db 0            ; save minimal registers during push/pop reg
@@ -401,6 +404,7 @@ startup:
       mov m_word [reg_wa],rax       ; startup stack pointer
 
       cld                     ; default to up direction for string ops
+      stmxcsr [mxcsr_save]      ; Remember default mxcsr
 ;      getoff      rax,dffnc         # get address of ppm offset
       mov   m_word [ppoff],rax      ; save for use later
 
@@ -488,7 +492,7 @@ stackinit:
       mov   m_word [reg_xl],rsi
       mov   m_word [reg_ia],r12
       mov   m_word [reg_cp],r13
-      movsd m_word [reg_ra],xmm12
+      movsd m_real [reg_ra],xmm12
       ret
 
 
@@ -563,6 +567,7 @@ syscall_init:
       mov   m_word [reg_ia],r12
       mov   m_word [reg_cp],r13
       movsd m_real [reg_ra],xmm12
+      ldmxcsr [mxcsr_save]      ; Restore mxcsr register
       ret
 
 syscall_exit:
@@ -769,6 +774,7 @@ sysxi:      mov   m_word [reg_xs],rsp
       push  r12
       push  r13
       movsd [reg_ra], ra
+      ldmxcsr [mxcsr_save]
       call  %2
       movsd ra, [reg_ra]
       pop   r13

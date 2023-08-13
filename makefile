@@ -16,9 +16,9 @@ ELF=elf$(WS)
 DEST=/usr/local/bin
 
 ifeq ($(DEBUG),0)
-CFLAGS= -Dm64 -m64 -fPIE -static
+CFLAGS= -Dm64 -m64 -fPIE -static  -mfpmath=sse -mieee-fp -mlong-double-64 -ffloat-store
 else
-CFLAGS= -Dm64 -g -m64 -fPIE -static
+CFLAGS= -Dm64 -g -m64 -fPIE -static -mfpmath=sse -mieee-fp -mlong-double-64 -ffloat-store
 endif
 
 # Assembler info

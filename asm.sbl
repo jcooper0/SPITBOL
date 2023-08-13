@@ -2074,13 +2074,25 @@ g_ldr
 g_str
    genop('movsd', getarg(i1, 'm_real'), ra)  :(opdone)
 g_adr
-   genop('addsd', ra, getarg(i1, 'm_real'))  :(opdone)
+   genop('ldmxcsr', '[mxcsr_set]')
+   genop('addsd', ra, getarg(i1, 'm_real'))  :(g_runder)
 g_sbr
-   genop('subsd', ra, getarg(i1, 'm_real'))  :(opdone)
+   genop('ldmxcsr', '[mxcsr_set]')
+   genop('subsd', ra, getarg(i1, 'm_real'))  :(g_runder)
 g_mlr
-   genop('mulsd', ra, getarg(i1, 'm_real'))  :(opdone)
+   genop('ldmxcsr', '[mxcsr_set]')
+   genop('mulsd', ra, getarg(i1, 'm_real'))  :(g_runder)
 g_dvr
-   genop('divsd', ra, getarg(i1, 'm_real'))  :(opdone)
+   genop('ldmxcsr', '[mxcsr_set]')
+   genop('divsd', ra, getarg(i1, 'm_real'))  :(g_runder)
+
+g_runder
+   genop('stmxcsr', '[mxcsr]')
+   genop('test', 'm_word [mxcsr]','0x0010')
+   genop('jz', (l1 = genlab()))
+   genop('pxor', ra, ra)
+   genop('ldmxcsr', '[mxcsr_set]')
+   genopl(l1 ':')                                :(opdone)
 
 *  *   5.7   ROV  _plbl_
 
@@ -2095,16 +2107,17 @@ g_dvr
 
 g_rov
    genop('call', 'do_chk_real_inf')
-   genop('ja', getarg(i1))          :(opdone)
+   genop('jnz', getarg(i1))           :(opdone)
 g_rno
    genop('call', 'do_chk_real_inf')
-   genop('jbe', getarg(i1))          :(opdone)
+   genop('jz', getarg(i1))           :(opdone)
 
 *  *   5.9 NGR
 
 *  Negate real accumulator (change sign)
 
-g_ngr genop('xorpd', ra, 'm_reall [negc]')   :(opdone)
+g_ngr genop('movsd', 'xmm0', 'm_real [zeron]')
+      genop('pxor', ra, 'xmm0')   :(opdone)
 *  *   5.10 REQ  _plbl_
 
 *  Jump to _plbl_ if (RA) eq 0.0

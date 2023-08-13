@@ -25,9 +25,10 @@
     extern  _rc_
     extern  reg_fl
     extern  reg_ra
+    extern  inf
     extern  neg1f
-    extern  infl
-    extern  negc
+    extern  zeron
+    extern  mxcsr_set
 
     global  mxint
 
@@ -200,6 +201,11 @@ calltab:
     extern  reg_cp
 
 ; opcode helpers
+    section .data
+    align 8
+mxcsr:       dd  0
+mxcsr_set:   dd  0x1f80  ; Precision | Underflow | Overflow | Divide by zero | Denormal | Invalid op
+mxcsr_mask:  dd  0x003f
     section .text
 
 ; divide ia by r10 result in ia
@@ -236,11 +242,25 @@ do_rmi_over:
     cmp     al,-128
     ret
 
-; Check ra for inf
+; Check ra for inf or fpe exception
 ; clobbers xmm1
-; sets
+; sets:
+;  unordered  ZF PF CF all 1  (either is NAN)
+;  GT         ZF PF CF all 0
+;  LT         ZF PF zero CF 1
+;  EQUAL      ZF 1 PF CF 0
+;
 do_chk_real_inf:
+    stmxcsr [mxcsr]                 ; get SSE status word
+    test    m_word [mxcsr], 0x001f  ; Check for Precision | Underflow | Overflow | Div by zero | Denormal | Invalid
+    jnz     do_chk_real_inf_except       ; set ZF for any of the above condtions
     movapd  xmm1,ra
-    andpd   xmm1,m_reall [neg1f]
-    ucomisd xmm1,m_real [infl]
+    andpd   xmm1,m_reall [neg1f]    ; Test for +/- NAN
+    ucomisd xmm1,m_real [inf]
+    je      do_chk_real_inf_except
+    cmp     al,al
+    ret
+do_chk_real_inf_except:
+    xor     al,al
+    cmp     al,-128
     ret
