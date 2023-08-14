@@ -254,7 +254,7 @@
 |cfp_m|equ|24,9223372036854775807|||max positive integer in one word|3137
 |cfp_n|equ|24,64|||number of bits in one word|3139
 |cfp_r|equ|24,1|||number of words in real constant|3149
-|cfp_s|equ|24,9|||number of sig digs for real output|3151
+|cfp_s|equ|24,16|||number of sig digs for real output|3151
 |cfp_x|equ|24,3|||max digits in real exponent|3153
 |mxdgs|equ|24,cfp_s+cfp_x|||max digits in real number|3164
 |nstmx|equ|24,mxdgs+5|||max space for real|3169
@@ -6504,7 +6504,7 @@
 ||jsr|6,prtmx|||print it|16692
 ||ejc|||||16694
 |stpr2|mti|3,gbcnt|||load count of collections|16700
-||mov|7,xr|21,=stpm4||point to message /regenerations /|16701
+||mov|7,xr|21,=stpm5||point to message /regenerations /|16701
 ||jsr|6,prtmx|||print it|16702
 ||jsr|6,prtmm|||print memory usage|16703
 ||jsr|6,prtis|||one more blank for luck|16704

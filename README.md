@@ -1,3 +1,34 @@
+# DEVELOPMENT SNAPSHOT -- NOT FOR GENERAL USE #
+
+This git branch is still in development and is not suitable for general use yet.
+
+The commits in this branch are subject to change.
+
+* I believe that there might be a memory leak that needs to be tracked down
+* Using more of x86_64 registers for the internal workings of the minimal instructions.
+    * R10 and R11 are used as work registers.
+    * XMM0, XMM1 are used as work registers for floating point
+    * Elimiate some of the calls to C code.
+* Use real registers for the mimimal "registers" CP, IA, RA.
+* Continue general code formatting cleanup.  Specifically using spaces instead of tab characters
+* Continue updating C code to use standard C function declarations and definitions.
+* Eliminate some of the internal macros and just generate code directly.  Use internal helper
+  routines to handle some of the larger generated code blocks.
+* Fix the end of run summary for regenerations statics to use the proper message text
+* Fix overflow detection for both integer and floating point (part of the update to use
+  registers)
+
+* Set max number of floating point digits on output to 16 (e.g. 0.1234567890123456) plus 3 digits for any exponent.
+
+The above needs more general testing.  Specific areas for testing are:
+
+* Floating point operations and functions
+* Integer "boundary" conditions
+
+Wish list changes:
+
+* Detection/and use of NAN and +/- INF for floating point.
+
 # Unix SPITBOL V4.0b (June 2023)
 
 SPITBOL is an extremely high performance implementation of the SNOBOL4 language that brings raw power and speed
