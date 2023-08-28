@@ -204,8 +204,8 @@ calltab:
     section .data
     align 8
 mxcsr:       dd  0
-mxcsr_set:   dd  0x1f80  ; Precision | Underflow | Overflow | Divide by zero | Denormal | Invalid op
-mxcsr_mask:  dd  0x003f
+;                          0x8000          0x1000           0x0800           0x0400        | 0x200               |  0x0100        | 0x0040
+mxcsr_set:   dd  0x9fc0  ; Flush to zero | Precision mask | Underflow mask | Overflow mask | Divide by Zero mask | Denormal mask | Denormals are zero
     section .text
 
 ; divide ia by r10 result in ia
@@ -252,15 +252,21 @@ do_rmi_over:
 ;
 do_chk_real_inf:
     stmxcsr [mxcsr]                 ; get SSE status word
-    test    m_word [mxcsr], 0x001f  ; Check for Precision | Underflow | Overflow | Div by zero | Denormal | Invalid
-    jnz     do_chk_real_inf_except       ; set ZF for any of the above condtions
+    test    m_word [mxcsr], 0x000c  ; Overflow | divide by zero set ZF=1
+    jnz     do_chk_real_inf_except  ;
+    test    m_word [mxcsr], 0x0013  ; All others set as zero and ZF=0
+    jnz     do_chk_real_inf_zero    ; Set value as zero and return "okay"
     movapd  xmm1,ra
     andpd   xmm1,m_reall [neg1f]    ; Test for +/- NAN
     ucomisd xmm1,m_real [inf]
     je      do_chk_real_inf_except
     cmp     al,al
     ret
-do_chk_real_inf_except:
+do_chk_real_inf_zero:               ; Some exception, return a zero ZF=0
+    pxor    ra,ra
+    cmp     al,al
+    ret
+do_chk_real_inf_except:             ; Overflow ZF=1
     xor     al,al
     cmp     al,-128
     ret

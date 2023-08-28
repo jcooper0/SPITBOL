@@ -18,24 +18,26 @@ Copyright 2012-2017 David Shields
 #if FLOAT & !MATHHDWR
 
 #include <math.h>
-#include <fenv.h>
+#include <xmmintrin.h>
 
 #ifndef errno
 int errno;
 #endif
 
-#define FE_SBL_EXCEPT (FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW )
-
-extern double inf;	// infinity
-extern word reg_flerr;	/* Floating point error */
+extern double inf;      // infinity
+extern word reg_flerr;  /* Floating point error */
 
 /*
  * f_atn - arctangent
  */
 void f_atn()
 {
-    feclearexcept(FE_ALL_EXCEPT);
+    unsigned int mxcsr;
+
     reg_ra = atan(reg_ra);
+    mxcsr = _mm_getcsr();
+    if (mxcsr & _MM_EXCEPT_UNDERFLOW)
+	reg_ra = 0;
 }
 
 /*
@@ -43,7 +45,6 @@ void f_atn()
  */
 void f_chp()
 {
-    feclearexcept(FE_ALL_EXCEPT);
     if (reg_ra >= 0.0)
         reg_ra =  floor(reg_ra);
     else
@@ -55,8 +56,11 @@ void f_chp()
  */
 void f_cos()
 {
-    feclearexcept(FE_ALL_EXCEPT);
+    unsigned int mxcsr;
     reg_ra =  cos(reg_ra);
+    mxcsr = _mm_getcsr();
+    if (mxcsr & _MM_EXCEPT_UNDERFLOW)
+	reg_ra = 0;
 }
 
 
@@ -65,12 +69,14 @@ void f_cos()
  */
 void f_etx()
 {
+    unsigned int mxcsr;
     errno = 0;
-    feclearexcept(FE_ALL_EXCEPT);
     reg_ra = exp(reg_ra);
-    if (errno) {
-        reg_ra = inf;
-    }
+    mxcsr = _mm_getcsr();
+    if (mxcsr & _MM_EXCEPT_UNDERFLOW)
+	reg_ra = 0;
+    else if (errno)
+	reg_ra = inf;
 }
 
 /*
@@ -78,13 +84,15 @@ void f_etx()
  */
 void f_lnf()
 {
+    unsigned int mxcsr;
     errno = 0;
-    feclearexcept(FE_ALL_EXCEPT);
 
     reg_ra = log(reg_ra);
-    if (errno) {
-        reg_ra = inf;
-    }
+    mxcsr = _mm_getcsr();
+    if (mxcsr & _MM_EXCEPT_UNDERFLOW)
+	reg_ra = 0;
+    else if (errno)
+	reg_ra = inf;
 }
 
 /*
@@ -92,8 +100,11 @@ void f_lnf()
  */
 void f_sin()
 {
-    feclearexcept(FE_ALL_EXCEPT);
+    unsigned int mxcsr;
     reg_ra = sin(reg_ra);
+    mxcsr = _mm_getcsr();
+    if (mxcsr & _MM_EXCEPT_UNDERFLOW)
+	reg_ra = 0;
 }
 
 /*
@@ -101,8 +112,11 @@ void f_sin()
  */
 void f_sqr()
 {
-    feclearexcept(FE_ALL_EXCEPT);
+    unsigned int mxcsr;
     reg_ra = sqrt(reg_ra);
+    mxcsr = _mm_getcsr();
+    if (mxcsr & _MM_EXCEPT_UNDERFLOW)
+	reg_ra = 0;
 }
 
 /*
@@ -110,10 +124,13 @@ void f_sqr()
  */
 void f_tan()
 {
-    double result;
-    feclearexcept(FE_ALL_EXCEPT);
-    result = tan(reg_ra);
+    unsigned int mxcsr;
     errno = 0;
-    reg_ra = errno ? inf : result;
+    reg_ra = tan(reg_ra);
+    mxcsr = _mm_getcsr();
+    if (mxcsr & _MM_EXCEPT_UNDERFLOW)
+	reg_ra = 0;
+    else if (errno)
+	reg_ra = inf;
 }
-#endif					// FLOAT & !MATHHDWR
+#endif /* FLOAT & !MATHHDWR */
