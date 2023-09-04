@@ -1,4 +1,4 @@
-# DEVELOPMENT SNAPSHOT DEVB -- NOT FOR GENERAL USE #
+# DEVELOPMENT SNAPSHOT DEVC -- NOT FOR GENERAL USE #
 
 This git branch is still in development and is not suitable for general use yet.
 
@@ -18,7 +18,8 @@ The commits in this branch are subject to change.
 * Fix overflow detection for both integer and floating point (part of the update to use
   registers)
 
-* Set max number of floating point digits on output to 16 (e.g. 0.1234567890123456) plus 3 digits for any exponent.
+>> * Reset max number of floating point digits on output to 15 (e.g. 0.123456789012345) plus 3 digits for any exponent.
+>> note division by zero is "reported" as overflow for both integer and real numbers.,
 
 The above needs more general testing.  Specific areas for testing are:
 
