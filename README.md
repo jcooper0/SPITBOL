@@ -1,8 +1,10 @@
-# DEVELOPMENT SNAPSHOT DEVC -- NOT FOR GENERAL USE #
+# DEVELOPMENT SNAPSHOT DEVD -- NOT FOR GENERAL USE #
 
 This git branch is still in development and is not suitable for general use yet.
 
 The commits in this branch are subject to change.
+
+* DEVD - Pulled in math tests from Jeff Cooper
 
 * I believe that there might be a memory leak that needs to be tracked down
 * Using more of x86_64 registers for the internal workings of the minimal instructions.

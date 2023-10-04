@@ -26,7 +26,7 @@ void prompt()
 #else					// RUNTIME
     wrterr("source files are concatenated, filename '-' is standard input/output");
     wrterr("# is a decimal number.  Append \"k\" for kilobytes, \"m\" for megabytes.");
-    wrterr("spitbol DEVELOPMENT SNAPSHOT DEVC");
+    wrterr("spitbol DEVELOPMENT SNAPSHOT DEVD");
     wrterr("options:");
     wrterr("-d# #bytes max heap            -i# #bytes initial heap size & enlarge amount");
     wrterr("-m# #bytes max object size     -s# #bytes stack size");

@@ -279,8 +279,8 @@ calltab:
     section .data
     align 8
 mxcsr:       dd  0
-mxcsr_set:   dd  0x1f80  ; Precision | Underflow | Overflow | Divide by zero | Denormal | Invalid op
-mxcsr_mask:  dd  0x003f
+;                          0x8000          0x1000           0x0800           0x0400        | 0x200               |  0x0100        | 0x0040
+mxcsr_set:   dd  0x9fc0  ; Flush to zero | Precision mask | Underflow mask | Overflow mask | Divide by Zero mask | Denormal mask | Denormals are zero
     section .text
 
 ; divide ia by r10 result in ia
@@ -327,15 +327,21 @@ do_rmi_over:
 ;
 do_chk_real_inf:
     stmxcsr [mxcsr]                 ; get SSE status word
-    test    m_word [mxcsr], 0x001f  ; Check for Precision | Underflow | Overflow | Div by zero | Denormal | Invalid
-    jnz     do_chk_real_inf_except       ; set ZF for any of the above condtions
+    test    m_word [mxcsr], 0x000c  ; Overflow | divide by zero set ZF=1
+    jnz     do_chk_real_inf_except  ;
+    test    m_word [mxcsr], 0x0013  ; All others set as zero and ZF=0
+    jnz     do_chk_real_inf_zero    ; Set value as zero and return "okay"
     movapd  xmm1,ra
     andpd   xmm1,m_reall [neg1f]    ; Test for +/- NAN
     ucomisd xmm1,m_real [inf]
     je      do_chk_real_inf_except
     cmp     al,al
     ret
-do_chk_real_inf_except:
+do_chk_real_inf_zero:               ; Some exception, return a zero ZF=0
+    pxor    ra,ra
+    cmp     al,al
+    ret
+do_chk_real_inf_except:             ; Overflow ZF=1
     xor     al,al
     cmp     al,-128
     ret
@@ -413,7 +419,7 @@ cfp_i   equ  1                                  ; number of words in integer con
 cfp_m   equ  9223372036854775807                ; max positive integer in one word} equ 9223372036854775807  
 cfp_n   equ  64                                 ; number of bits in one word} equ 64  
 cfp_r   equ  1                                  ; number of words in real constant} equ 1  
-cfp_s   equ  16                                 ; number of sig digs for real output} equ 16  
+cfp_s   equ  15                                 ; number of sig digs for real output} equ 15  
 cfp_x   equ  3                                  ; max digits in real exponent} equ 3  
 mxdgs   equ  cfp_s+cfp_x                        ; max digits in real number} equ cfp_s+cfp_x  
 nstmx   equ  mxdgs+5                            ; max space for real} equ mxdgs+5  
@@ -1118,7 +1124,7 @@ lstms:  d_word b_scl                            ; page} dac b_scl
         d_char 'p','a','g','e',' ',0,0,0        ; } dtc /page /  
 headr:  d_word b_scl                            ; } dac b_scl  
         d_word 26                               ; } dac 26  
-        d_char 'm','a','c','r','o',' ','s','p','i','t','b','o','l',' ','v','e','r','s','i','o','n',' ','D','E','V','B',0,0,0,0,0,0; } dtc /macro spitbol version DEVB/  
+        d_char 'm','a','c','r','o',' ','s','p','i','t','b','o','l',' ','v','e','r','s','i','o','n',' ','D','E','V','D',0,0,0,0,0,0; } dtc /macro spitbol version DEVD/  
 headv:  d_word b_scl                            ; for exit() version no. check} dac b_scl  
         d_word 5                                ; } dac 5  
         d_char '1','5','.','0','1',0,0,0        ; } dtc /15.01/  

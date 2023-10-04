@@ -254,7 +254,7 @@
 |cfp_m|equ|24,9223372036854775807|||max positive integer in one word|3137
 |cfp_n|equ|24,64|||number of bits in one word|3139
 |cfp_r|equ|24,1|||number of words in real constant|3149
-|cfp_s|equ|24,16|||number of sig digs for real output|3151
+|cfp_s|equ|24,15|||number of sig digs for real output|3151
 |cfp_x|equ|24,3|||max digits in real exponent|3153
 |mxdgs|equ|24,cfp_s+cfp_x|||max digits in real number|3164
 |nstmx|equ|24,mxdgs+5|||max space for real|3169
@@ -1025,7 +1025,7 @@
 ||dtc|27,/page /||||6029
 |headr|dac|6,b_scl||||6033
 ||dac|1,26||||6034
-||dtc|27,/macro spitbol version DEVB/||||6035
+||dtc|27,/macro spitbol version DEVD/||||6035
 |headv|dac|6,b_scl|||for exit() version no. check|6037
 ||dac|1,5||||6038
 ||dtc|27,/15.01/||||6039
